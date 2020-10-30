@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+
+  redis:
+    container_name: cpe-redis
+    image: redis:5.0.7
+    ports:
+      - "6379:6379"
+    networks:
+      - celery-pubsub-network
+
+  cpe--publisher:
+    container_name: cpe-publisher
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/celery-pubsub-example
+    command: >
+      bash -c "celery -A publisher.worker worker"
+    depends_on:
+      - redis
+    networks:
+      - celery-pubsub-network
+
+  cpe-subscriber1:
+    container_name: cpe-subscriber1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/celery-pubsub-example
+    command: >
+      bash -c "celery -A subscriber1.worker worker"
+    depends_on:
+      - redis
+    networks:
+      - celery-pubsub-network
+
+  cpe-subscriber2:
+    container_name: cpe-subscriber2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/celery-pubsub-example
+    command: >
+      bash -c "celery -A subscriber2.worker worker"
+    depends_on:
+      - redis
+    networks:
+      - celery-pubsub-network
+
+networks:
+  celery-pubsub-network:
+    driver: bridge

@@ -1,0 +1,2 @@
+celery-pubsub==0.2.1
+redis==3.3.6
